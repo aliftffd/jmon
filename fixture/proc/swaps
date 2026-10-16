@@ -1,0 +1,8 @@
+Filename				Type		Size		Used		Priority
+/swapfile                               file		8388604		0		-2
+/dev/zram0                              partition	649156		0		5
+/dev/zram1                              partition	649156		0		5
+/dev/zram2                              partition	649156		0		5
+/dev/zram3                              partition	649156		0		5
+/dev/zram4                              partition	649156		0		5
+/dev/zram5                              partition	649156		0		5
