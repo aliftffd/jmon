@@ -1,5 +1,12 @@
 # jmon
 
+[![crates.io](https://img.shields.io/crates/v/jmon.svg)](https://crates.io/crates/jmon)
+[![license: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
+```sh
+cargo install jmon
+```
+
 jmon is a btop/nvtop-style terminal hardware monitor for NVIDIA Jetson, developed and tested on the Orin Nano. It is written in Rust with ratatui and shows CPU, GPU, memory, power, cooling, processes, and model workload statistics in one terminal. Monitoring is read-only, needs no root privileges, and uses about 2 MB of RAM (PSS). Benchmark checks help you see whether the board still matches your chosen test conditions; jmon never changes hardware settings.
 
 Not affiliated with or endorsed by NVIDIA.
@@ -617,6 +624,18 @@ cargo fmt
 cargo fmt --check
 cargo clippy
 ```
+
+### Releasing a new version
+
+```sh
+# 1. bump `version` in Cargo.toml (e.g. 0.1.0 → 0.1.1), then:
+cargo fmt --check && cargo clippy && cargo test
+cargo publish --dry-run          # builds the exact crate that will be uploaded
+git commit -am "Release v0.1.1" && git tag v0.1.1 && git push --follow-tags
+cargo publish                    # needs `cargo login` once; published versions can be yanked, never replaced
+```
+
+`cargo publish` refuses uncommitted changes — commit first instead of passing `--allow-dirty`, so the crate always matches a commit on GitHub. `docs/` and `fixture/` are excluded from the crate (see `exclude` in Cargo.toml); the tests that use the fixture run from the git checkout.
 
 ## License
 
