@@ -17,7 +17,7 @@ Placeholders; the images will be added later.
 
 ![Overview tab](https://raw.githubusercontent.com/aliftffd/jmon/main/docs/overview.png)
 
-![Processes tab](https://raw.githubusercontent.com/aliftffd/jmon/main/docs/processes.png)
+![Processes tab](https://raw.githubusercontent.com/aliftffd/jmon/main/docs/processes_updated.png)
 
 ![Power tab](https://raw.githubusercontent.com/aliftffd/jmon/main/docs/power.png)
 
