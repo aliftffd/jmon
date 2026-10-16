@@ -2,7 +2,16 @@
 name = "jmon"
 version = "0.1.0"
 edition = "2021"
-description = "btop/nvtop-style hardware monitor for NVIDIA Jetson Orin Nano (JetPack 6)"
+description = "btop/nvtop-style terminal hardware monitor for NVIDIA Jetson Orin Nano (JetPack 6): CPU, GPU, RAM/swap, power rails, thermals, fan, processes and LLM tok/s"
+license = "MIT"
+repository = "https://github.com/aliftffd/jmon"
+homepage = "https://github.com/aliftffd/jmon"
+readme = "README.md"
+keywords = ["jetson", "nvidia", "monitor", "tui", "edge-ai"]
+categories = ["command-line-utilities", "embedded", "hardware-support"]
+rust-version = "1.87"
+# docs/ screenshots are for GitHub; the fixture is only needed by the tests.
+exclude = ["docs/", "fixture/", ".gitignore"]
 
 [dependencies]
 ratatui = "0.30"

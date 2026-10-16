@@ -8,11 +8,11 @@ Not affiliated with or endorsed by NVIDIA.
 
 Placeholders; the images will be added later.
 
-![Overview tab](docs/overview.png)
+![Overview tab](https://raw.githubusercontent.com/aliftffd/jmon/main/docs/overview.png)
 
-![Processes tab](docs/processes.png)
+![Processes tab](https://raw.githubusercontent.com/aliftffd/jmon/main/docs/processes.png)
 
-![Power tab](docs/power.png)
+![Power tab](https://raw.githubusercontent.com/aliftffd/jmon/main/docs/power.png)
 
 ## Features
 
@@ -120,10 +120,19 @@ cargo --version
 
 ### d. Get the source
 
-The repository is not published yet. Replace the literal `<REPO_URL>` placeholder with its URL when available, then run on the Jetson:
+**Quickest — install from crates.io** (needs Rust from step c; installs `jmon` into `~/.cargo/bin`, already on your PATH after `source ~/.cargo/env`):
 
 ```sh
-git clone <REPO_URL> ~/jetson-monitor
+cargo install jmon
+jmon
+```
+
+If you install this way you can skip steps e and f. Put your benchmark targets in `~/.config/jmon/expected.conf` (see *Benchmark mode & expected.conf*). Update later with `cargo install jmon --force`.
+
+**Or build from source** (needed to run the tests or `--root fixture`):
+
+```sh
+git clone https://github.com/aliftffd/jmon.git ~/jetson-monitor
 ```
 
 Alternatively, if you already have the folder on your laptop, copy it to the Jetson. Run this **on the laptop**, replacing `<jetson>` with an SSH destination such as `your-user@192.168.1.50`:
@@ -240,7 +249,7 @@ Use a space between a flag and its value. Choose one of `--watch` or `--pid`; if
 | Flag | Meaning |
 | --- | --- |
 | `--root DIR` | Read board sysfs/procfs and related files under `DIR` instead of `/`, for example a captured fixture. jmon's own overhead still comes from the real process. |
-| `--expected FILE` | Load benchmark targets from this file. The default is `./expected.conf`; if the file cannot be read, built-in targets are mode 0 / 15W, CPU 1728 MHz, GPU 612 MHz. |
+| `--expected FILE` | Load benchmark targets from this file. Without it, jmon uses the first file that exists of `./expected.conf`, `~/.config/jmon/expected.conf` (or `$XDG_CONFIG_HOME/jmon/expected.conf`), `/etc/jmon/expected.conf`; otherwise the built-in targets: mode 0 / 15W, CPU 1728 MHz, GPU 612 MHz. |
 | `--bench` | Start with the benchmark preset: 1 Hz sampling, process table off, fan animation paused. It starts on Overview; press **5** to view the checks. |
 | `--watch NAME` | Follow a process whose command line contains `NAME`, and find a new matching PID after it exits. Use a distinctive substring when several processes may match. |
 | `--pid N` | Follow a specific numeric PID. It does not follow a replacement process with a new PID. |
@@ -611,4 +620,4 @@ cargo clippy
 
 ## License
 
-TBD
+MIT — see [LICENSE](LICENSE).

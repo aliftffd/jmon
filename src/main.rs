@@ -18,7 +18,8 @@ use std::time::{Duration, Instant};
 
 const USAGE: &str = "jmon [--root DIR] [--expected FILE] [--bench] [--watch NAME | --pid N] [--workload FILE [--deadline-ms MS]]
   --root DIR         read sysfs/procfs under DIR (captured fixture) instead of /
-  --expected FILE    benchmark targets (default: ./expected.conf, else built-in 15W/1728/612)
+  --expected FILE    benchmark targets (default: first of ./expected.conf, ~/.config/jmon/expected.conf,
+                     /etc/jmon/expected.conf, else built-in 15W/1728/612)
   --bench            start in benchmark preset (1 Hz, no process table, fan animation paused)
   --watch NAME       follow the process whose command line contains NAME (re-found after restarts)
   --pid N            follow process N
@@ -28,7 +29,7 @@ const USAGE: &str = "jmon [--root DIR] [--expected FILE] [--bench] [--watch NAME
 
 fn main() -> std::io::Result<()> {
     let mut root = PathBuf::from("/");
-    let mut expected_path = PathBuf::from("expected.conf");
+    let mut expected_path: Option<PathBuf> = None;
     let mut bench = false;
     let mut watch = None;
     let mut workload_path: Option<PathBuf> = None;
@@ -38,7 +39,7 @@ fn main() -> std::io::Result<()> {
     while let Some(a) = args.next() {
         match a.as_str() {
             "--root" => root = args.next().map(PathBuf::from).unwrap_or(root),
-            "--expected" => expected_path = args.next().map(PathBuf::from).unwrap_or(expected_path),
+            "--expected" => expected_path = args.next().map(PathBuf::from),
             "--bench" => bench = true,
             "--watch" => watch = args.next().map(sensors::WatchTarget::Name),
             "--pid" => {
@@ -64,7 +65,9 @@ fn main() -> std::io::Result<()> {
         }
     }
 
-    let expected = std::fs::read_to_string(&expected_path)
+    let expected = expected_path
+        .or_else(|| config_candidates().into_iter().find(|p| p.is_file()))
+        .and_then(|p| std::fs::read_to_string(p).ok())
         .map(|t| Expected::parse(&t))
         .unwrap_or_default();
     let mut sensors = sensors::Sensors::discover(&root);
@@ -168,6 +171,19 @@ fn main() -> std::io::Result<()> {
     result
 }
 
+/// Config search order when --expected isn't given (installed via cargo/deb, not run from the repo).
+fn config_candidates() -> Vec<PathBuf> {
+    let mut v = vec![PathBuf::from("expected.conf")];
+    let xdg = std::env::var_os("XDG_CONFIG_HOME")
+        .map(PathBuf::from)
+        .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".config")));
+    if let Some(dir) = xdg {
+        v.push(dir.join("jmon/expected.conf"));
+    }
+    v.push(PathBuf::from("/etc/jmon/expected.conf"));
+    v
+}
+
 fn handle_key(app: &mut App, key: KeyCode, period_ms: &AtomicU64) {
     match key {
         KeyCode::Char('q') | KeyCode::Esc => app.quit = true,
@@ -215,5 +231,24 @@ fn handle_key(app: &mut App, key: KeyCode, period_ms: &AtomicU64) {
             period_ms.store((p * 2).min(4000), Ordering::Relaxed);
         }
         _ => {}
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn config_search_order() {
+        let c = super::config_candidates();
+        assert_eq!(
+            c.first().unwrap(),
+            &std::path::PathBuf::from("expected.conf")
+        );
+        assert!(c
+            .iter()
+            .any(|p| p.ends_with("jmon/expected.conf") && !p.starts_with("/etc")));
+        assert_eq!(
+            c.last().unwrap(),
+            &std::path::PathBuf::from("/etc/jmon/expected.conf")
+        );
     }
 }
